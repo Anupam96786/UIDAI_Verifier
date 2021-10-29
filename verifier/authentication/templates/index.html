@@ -8,7 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifier</title>
     <button onclick="openNewTab()">OPEN NEW TAB</button>
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
     <script src="{% static 'js/across-tabs.js'%}"></script>
     <!--<script>
         var SSO_DOMAIN="http://127.0.0.1:8000";
@@ -122,9 +123,9 @@
         }
         function showList() {
             // if (!newTab) { return; }
-            (allTabs = parent.getAllTabs()), 
-            (openedTabs = parent.getOpenedTabs()),
-            (closedTabs = parent.getClosedTabs());
+            (allTabs = parent.getAllTabs()),
+                (openedTabs = parent.getOpenedTabs()),
+                (closedTabs = parent.getClosedTabs());
         }
         var parent = new AcrossTabs.default.Parent({
             onHandshakeCallback: onHandshakeCallback,
@@ -155,43 +156,43 @@
                 'street': '',
                 'vtc': ''
             },
-            'photo':'',
+            'photo': '',
         };
-        var AADHAR_INIT={};
-        aadhaarInit=function(
-            apikey="",
+        var AADHAR_INIT = {};
+        aadhaarInit = function (
+            apikey = "",
             divname = "aadhaar",
-            permissions=['vid','personal_data','address','photo'],
+            permissions = ['vid', 'personal_data', 'address', 'photo'],
             callbackfn = null
-        ){
-            permissionsobj={
-                "head":"permissions",
-                "body":permissions,
+        ) {
+            permissionsobj = {
+                "head": "permissions",
+                "body": permissions,
             }
-            INIT_REQ={
-                'divname':divname,
-                'apikey':apikey,
-                'permissions':permissions,
-                'origin':window.location.href,
+            INIT_REQ = {
+                'divname': divname,
+                'apikey': apikey,
+                'permissions': JSON.stringify(permissions),
+                'origin': window.location.href,
             }
             // check API-Key, window.location.href and permissions access from SSO Server registration.
             // if all is ok then create AADHAR BUTTON
-            console.log("AADHAR_INIT",JSON.stringify(INIT_REQ));
-            var flag=false;
+            console.log("AADHAR_INIT", JSON.stringify(INIT_REQ));
+            var flag = false;
             $.ajax({
-                url:SSO_DOMAIN+"/user/check_permission/",
-                type:"POST",
-                data:JSON.stringify(INIT_REQ),
-                success:function(data){
-                    console.log("AADHAR_INIT SUCCESS",data);
-                    flag=false;
+                url: SSO_DOMAIN + "/user/check_permission/",
+                type: "POST",
+                data: INIT_REQ,
+                success: function (data) {
+                    console.log("AADHAR_INIT SUCCESS", data);
+                    flag = false;
                 },
-                error:function(data){
-                    console.log("AADHAR_INIT FAIL",data);
-                    flag=true;
+                error: function (data) {
+                    console.log("AADHAR_INIT FAIL", data);
+                    flag = true;
                 }
             })
-            if(flag){
+            if (flag) {
                 console.log("AADHAR_INIT FAIL");
                 return;
             }
@@ -202,32 +203,32 @@
                 openNewTab();
             }
             aadhaar.appendChild(btn);
-            AADHAR_INIT={
-                'divname':divname,
-                'apikey':apikey,
-                'callbackfn':callbackfn,
-                'permissions':permissions,
-                'origin':window.location.href,
+            AADHAR_INIT = {
+                'divname': divname,
+                'apikey': apikey,
+                'callbackfn': callbackfn,
+                'permissions': permissions,
+                'origin': window.location.href,
             }
             // RETURN WORKERS TO CALL
             var aadharWorkerFunction = {
-                'getChild':function (data){
-                    if(!DEBUG)return 0;// NOT FOR PRODUCTION
+                'getChild': function (data) {
+                    if (!DEBUG) return 0;// NOT FOR PRODUCTION
                     console.log("aadharWorkerFunction - getChild", data);
                 },
-                'getData':function(permissions=permissions){
-                    console.log("aadharWorkerFunction - getData",  permissions);
+                'getData': function (permissions = permissions) {
+                    console.log("aadharWorkerFunction - getData", permissions);
                 }
             }
             return aadharWorkerFunction;
         }
     </script>
     <script defer>
-        callbackfn = (data)=>console.log("callbackfn",data);
+        callbackfn = (data) => console.log("callbackfn", data);
         aadharWorker = aadhaarInit(
-            apikey="hbc-podoih-0019kx",
+            apikey = "hbc-podoih-0019kx",
             divname = "aadhaar",
-            permissions=['vid','personal_data','address','photo'],
+            permissions = ['vid', 'personal_data', 'address', 'photo'],
             callbackfn = callbackfn
         );
         // var aadharBtn = aadhaarInit("app-key","aadhaar", ["vid", "personal_data", "address", "photo"],callbackfn);

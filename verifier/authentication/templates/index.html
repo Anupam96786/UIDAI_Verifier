@@ -46,14 +46,6 @@
     <h1>Verifier Application</h1>
     <div id="data"></div>
     <div id="aadhaar"></div>
-    <p>ALL</p>
-    <div id='all-tabs-list' style="display:inline-block;"></div>
-    <p>Open</p>
-    <div id='opened-tabs-list' style="display:inline-block;"></div>
-    <p>Closed</p>
-    <div id='closed-tabs-list' style="display:inline-block;"></div>
-    <p>Button</p>
-    <div id='btn-group' style="display:inline-block;"></div>
     <p>PMLIST</p>
     <div id='pm-list' style="display:inline-block;"></div>
     <script>
@@ -71,18 +63,16 @@
         function openNewTab(permissions = []) {
             var config = {
                 url: SSO_URL,
-                windowName: 'Child - ' + ++i,
+                windowName: 'Child-' + ++i,
                 windowFeatures: POPUP_SPECS,
             };
             parent.openNewTab(config);
         }
         function closeAllTabs() {
             parent.closeAllTabs();
-            showList();
         }
         function closeTab(id) {
             parent.closeTab(id);
-            showList();
         }
         function broadCastTo(tab, data = 'Yo! Message from parent!!') {
             parent.broadCastTo(tab, data);
@@ -117,20 +107,20 @@
             showPMList();
         }
         function onChildCommunication(data) {
+            console.log('onChildCommunication', data);
             data.type = 'custom';
             postMessageEvents.push(data);
             showPMList();
         }
-        function showList() {
-            // if (!newTab) { return; }
-            (allTabs = parent.getAllTabs()),
-                (openedTabs = parent.getOpenedTabs()),
-                (closedTabs = parent.getClosedTabs());
+        function onPollingCallback() {
+            allTabs = parent.getAllTabs();
+            openedTabs = parent.getOpenedTabs();
+            closedTabs = parent.getClosedTabs();
         }
         var parent = new AcrossTabs.default.Parent({
             onHandshakeCallback: onHandshakeCallback,
             onChildCommunication: onChildCommunication,
-            onPollingCallback: showList,
+            onPollingCallback: onPollingCallback,
             onChildDisconnect: onChildDisconnect
         });
     </script>
@@ -163,12 +153,7 @@
             apikey = "",
             divname = "aadhaar",
             permissions = ['vid', 'personal_data', 'address', 'photo'],
-            callbackfn = null
-        ) {
-            permissionsobj = {
-                "head": "permissions",
-                "body": permissions,
-            }
+            callbackfn = null) {
             INIT_REQ = {
                 'divname': divname,
                 'apikey': apikey,
@@ -178,38 +163,42 @@
             // check API-Key, window.location.href and permissions access from SSO Server registration.
             // if all is ok then create AADHAR BUTTON
             console.log("AADHAR_INIT", JSON.stringify(INIT_REQ));
-            var flag = false;
             $.ajax({
                 url: SSO_DOMAIN + "/user/check_permission/",
                 type: "POST",
                 data: INIT_REQ,
                 success: function (data) {
-                    console.log("AADHAR_INIT SUCCESS", data);
-                    flag = false;
+                    if (!data.result) {
+                        alert("Aadhaar API Key is not valid for the domain.");
+                        return 0;
+                    }
+                    else {
+                        console.log("AADHAR_INIT SUCCESS", data);
+                        permissions = data['permissions']
+                        var aadhaar = document.getElementById(divname);
+                        btn = document.createElement("button");
+                        btn.innerHTML = "Aadhaar Login";
+                        btn.onclick = function () {
+                            openNewTab();
+                        }
+                        aadhaar.appendChild(btn);
+                        AADHAR_INIT = {
+                            'divname': divname,
+                            'apikey': apikey,
+                            'callbackfn': callbackfn,
+                            'permissions': permissions,
+                            'origin': window.location.href,
+                        }
+                        permissionsobj = {
+                            "head": "permissions",
+                            "body": permissions,
+                        }
+                    }
                 },
                 error: function (data) {
                     console.log("AADHAR_INIT FAIL", data);
-                    flag = true;
                 }
-            })
-            if (flag) {
-                console.log("AADHAR_INIT FAIL");
-                return;
-            }
-            var aadhaar = document.getElementById(divname);
-            btn = document.createElement("button");
-            btn.innerHTML = "Aadhaar Login";
-            btn.onclick = function () {
-                openNewTab();
-            }
-            aadhaar.appendChild(btn);
-            AADHAR_INIT = {
-                'divname': divname,
-                'apikey': apikey,
-                'callbackfn': callbackfn,
-                'permissions': permissions,
-                'origin': window.location.href,
-            }
+            });
             // RETURN WORKERS TO CALL
             var aadharWorkerFunction = {
                 'getChild': function (data) {

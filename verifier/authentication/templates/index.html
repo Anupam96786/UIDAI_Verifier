@@ -1,43 +1,237 @@
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verifier</title>
-    <script>
-        var popup;
-        function loginwindow(){
-            
-            popup = window.open("http://127.0.0.1:8000/user/login",'login',"width=550,height=200");
-
-            // When the popup has fully loaded, if not blocked by a popup blocker:
-
-            // This does nothing, assuming the window hasn't changed its location.
-            popup.postMessage("The user is 'bob' and the password is 'secret'",
-                            "http://127.0.0.1:8000");
-
-            // This will successfully queue a message to be sent to the popup, assuming
-            // the window hasn't changed its location.
-            popup.postMessage("hello there!", "http://127.0.0.1:8000");
-
-            window.addEventListener("message", (event) => {
-            // Do we trust the sender of this message?  (might be
-            // different from what we originally opened, for example).
-            if (event.origin !== "http://example.com")
-                return;
-            console.log(event.data);
-            console.log(event.origin);
-            console.log(event.source);
-            // event.source is popup
-            // event.data is "hi there yourself!  the secret response is: rheeeeet!"
-            }, false);
+    <button onclick="openNewTab()">OPEN NEW TAB</button>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/across-tabs.js'%}"></script>
+    <!--<script>
+        var SSO_DOMAIN="http://127.0.0.1:8000";
+        var SSO_URL="http://127.0.0.1:8000/sso";
+        var POPUP_SPECS="width=350,height=500";
+        var POPUP_NAME={
+            1:'_blank',// URL is loaded into a new window, or tab. This is default
+            2:'_parent',// - URL is loaded into the parent frame
+            3:'_self',// - URL replaces the current page
+            4:'_top',// - URL replaces any framesets that may be loaded
+            5:'login',// - The name of the window (Note: the name does not specify the title of the new window)
         }
-    </script>
+        var callback=null;
+        function aadhaarInit(divname="aadhaar",apikey="",callbackfn=null){
+            callback=callbackfn;
+            // Check API-Key from Server
+            var aadhaar = document.getElementById(divname);
+            btn = document.createElement("button");
+            btn.innerHTML = "Aadhaar Login";
+            btn.onclick = function(){
+                loginWindow();
+            }
+            aadhaar.appendChild(btn);
+            return aadharWorkerFunction;
+        }
+        var aadharWorkerFunction = function(data){
+            // function verifier site can use to get data from aadhaar sso
+            console.log("aadharWorkerFunction",data);
+        }
+    </script>-->
 </head>
+
 <body>
     <h1>Verifier Application</h1>
-    <input type=text id="username" placeholder="username">
-    <button onclick="loginwindow()" value="login with aadhar">Login</button>
+    <div id="data"></div>
+    <div id="aadhaar"></div>
+    <p>ALL</p>
+    <div id='all-tabs-list' style="display:inline-block;"></div>
+    <p>Open</p>
+    <div id='opened-tabs-list' style="display:inline-block;"></div>
+    <p>Closed</p>
+    <div id='closed-tabs-list' style="display:inline-block;"></div>
+    <p>Button</p>
+    <div id='btn-group' style="display:inline-block;"></div>
+    <p>PMLIST</p>
+    <div id='pm-list' style="display:inline-block;"></div>
+    <script>
+
+        var SSO_DOMAIN = "http://127.0.0.1:8000";
+        var SSO_URL = "http://127.0.0.1:8000/sso";
+        var POPUP_SPECS = "width=350,height=500";
+        var newTab,
+            i = 0;
+        var postMessageEvents = [],
+            allTabs = [],
+            openedTabs = [],
+            closedTabs = [];
+
+        function openNewTab(permissions = []) {
+            var config = {
+                url: SSO_URL,
+                windowName: 'Child - ' + ++i,
+                windowFeatures: POPUP_SPECS,
+            };
+            parent.openNewTab(config);
+        }
+        function closeAllTabs() {
+            parent.closeAllTabs();
+            showList();
+        }
+        function closeTab(id) {
+            parent.closeTab(id);
+            showList();
+        }
+        function broadCastTo(tab, data = 'Yo! Message from parent!!') {
+            parent.broadCastTo(tab, data);
+        }
+        function broadCastAll(data = 'Yo! Broadcasted Message from parent to ALL!') {
+            parent.broadCastAll(data);
+        }
+        function showPMList() {
+            var list = '';
+            for (var i = 0; i < postMessageEvents.length; i++) {
+                var msg;
+                if (postMessageEvents[i].type === 'custom') {
+                    msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> sent: ' + postMessageEvents[i].msg;
+                } else if (postMessageEvents[i].type === 'open') {
+                    msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> opened';
+                } else if (postMessageEvents[i].type === 'close') {
+                    msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> closed';
+                }
+                list += '<li>' + '<span>' + msg + '</span>' + '</li>';
+            }
+
+            document.getElementById('pm-list').innerHTML = list;
+        }
+        function onChildDisconnect(data) {
+            data.type = 'close';
+            postMessageEvents.push(data);
+            showPMList();
+        }
+        function onHandshakeCallback(data) {
+            data.type = 'open';
+            postMessageEvents.push(data);
+            showPMList();
+        }
+        function onChildCommunication(data) {
+            data.type = 'custom';
+            postMessageEvents.push(data);
+            showPMList();
+        }
+        function showList() {
+            // if (!newTab) { return; }
+            (allTabs = parent.getAllTabs()), 
+            (openedTabs = parent.getOpenedTabs()),
+            (closedTabs = parent.getClosedTabs());
+        }
+        var parent = new AcrossTabs.default.Parent({
+            onHandshakeCallback: onHandshakeCallback,
+            onChildCommunication: onChildCommunication,
+            onPollingCallback: showList,
+            onChildDisconnect: onChildDisconnect
+        });
+    </script>
+    <script>
+        var DEBUG = true;
+        var DATA = {
+            'vid': '',
+            'personal_data': {
+                'dob': '',
+                'gender': '',
+                'name': '',
+                'phone': ''
+            },
+            'address':
+            {
+                'co': '',
+                'country': '',
+                'dist': '',
+                'house': '',
+                'lm': '',
+                'pc': '',
+                'state': '',
+                'street': '',
+                'vtc': ''
+            },
+            'photo':'',
+        };
+        var AADHAR_INIT={};
+        aadhaarInit=function(
+            apikey="",
+            divname = "aadhaar",
+            permissions=['vid','personal_data','address','photo'],
+            callbackfn = null
+        ){
+            permissionsobj={
+                "head":"permissions",
+                "body":permissions,
+            }
+            INIT_REQ={
+                'divname':divname,
+                'apikey':apikey,
+                'permissions':permissions,
+                'origin':window.location.href,
+            }
+            // check API-Key, window.location.href and permissions access from SSO Server registration.
+            // if all is ok then create AADHAR BUTTON
+            console.log("AADHAR_INIT",JSON.stringify(INIT_REQ));
+            var flag=false;
+            $.ajax({
+                url:SSO_DOMAIN+"/user/check_permission/",
+                type:"POST",
+                data:JSON.stringify(INIT_REQ),
+                success:function(data){
+                    console.log("AADHAR_INIT SUCCESS",data);
+                    flag=false;
+                },
+                error:function(data){
+                    console.log("AADHAR_INIT FAIL",data);
+                    flag=true;
+                }
+            })
+            if(flag){
+                console.log("AADHAR_INIT FAIL");
+                return;
+            }
+            var aadhaar = document.getElementById(divname);
+            btn = document.createElement("button");
+            btn.innerHTML = "Aadhaar Login";
+            btn.onclick = function () {
+                openNewTab();
+            }
+            aadhaar.appendChild(btn);
+            AADHAR_INIT={
+                'divname':divname,
+                'apikey':apikey,
+                'callbackfn':callbackfn,
+                'permissions':permissions,
+                'origin':window.location.href,
+            }
+            // RETURN WORKERS TO CALL
+            var aadharWorkerFunction = {
+                'getChild':function (data){
+                    if(!DEBUG)return 0;// NOT FOR PRODUCTION
+                    console.log("aadharWorkerFunction - getChild", data);
+                },
+                'getData':function(permissions=permissions){
+                    console.log("aadharWorkerFunction - getData",  permissions);
+                }
+            }
+            return aadharWorkerFunction;
+        }
+    </script>
+    <script defer>
+        callbackfn = (data)=>console.log("callbackfn",data);
+        aadharWorker = aadhaarInit(
+            apikey="hbc-podoih-0019kx",
+            divname = "aadhaar",
+            permissions=['vid','personal_data','address','photo'],
+            callbackfn = callbackfn
+        );
+        // var aadharBtn = aadhaarInit("app-key","aadhaar", ["vid", "personal_data", "address", "photo"],callbackfn);
+    </script>
 </body>
+
 </html>

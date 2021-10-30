@@ -85,7 +85,7 @@
             for (var i = 0; i < postMessageEvents.length; i++) {
                 var msg;
                 if (postMessageEvents[i].type === 'custom') {
-                    msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> sent: ' + postMessageEvents[i].msg;
+                    msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> sent: ' + JSON.stringify(postMessageEvents[i].msg);
                 } else if (postMessageEvents[i].type === 'open') {
                     msg = 'Tab: <strong>' + postMessageEvents[i].id + '</strong> opened';
                 } else if (postMessageEvents[i].type === 'close') {
@@ -107,7 +107,7 @@
             showPMList();
         }
         function onChildCommunication(data) {
-            console.log('onChildCommunication', data);
+            console.log('onChildCommunication', JSON.stringify(data));
             data.type = 'custom';
             postMessageEvents.push(data);
             showPMList();
@@ -164,7 +164,7 @@
             // if all is ok then create AADHAR BUTTON
             console.log("AADHAR_INIT", JSON.stringify(INIT_REQ));
             $.ajax({
-                url: SSO_DOMAIN + "/user/check_permission/",
+                url: SSO_DOMAIN + "/user/api/check_permission/",
                 type: "POST",
                 data: INIT_REQ,
                 success: function (data) {

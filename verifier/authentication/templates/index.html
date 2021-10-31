@@ -148,40 +148,6 @@
             postMessageEvents.push(data);
             showPMList();
         }
-        function logout(){
-            localStorage.removeItem('data');
-        }
-        function showlogin(){
-            data = JSON.parse(localStorage.getItem('data')); 
-            dataparse = `<h2>Logged In<h2><button class="btn btn-danger" onclick="logout()">Logout</button>`
-            try{
-                if(data["personal_data"])
-                dataparse+=`
-                    <p> ${data["personal_data"]["dob"]} </p>
-                    <p> ${data["personal_data"]["gender"]} </p>
-                    <p> ${data["personal_data"]["name"]} </p>
-                    <p> ${data["personal_data"]["phone"]} </p>`
-                if(data["address"]){
-                    dataparse+=`
-                    <p> ${data["address"]["co"]} </p>
-                    <p> ${data["address"]["country"]} </p>
-                    <p> ${data["address"]["dist"]} </p>
-                    <p> ${data["address"]["house"]} </p>
-                    <p> ${data["address"]["lm"]} </p>
-                    <p> ${data["address"]["pc"]} </p>
-                    <p> ${data["address"]["state"]} </p>
-                    <p> ${data["address"]["street"]} </p>
-                    <p> ${data["address"]["vtc"]} </p>`                
-                }
-                if(data["photo"]){
-                    dataparse+=`
-                    <img src="data:image/jpg;base64,${data["photo"]}">`
-                }
-            }catch{
-            }
-            
-            document.getElementById('datacontainer').innerHTML =dataparse
-        }
         var permission_request = false;
         function onChildCommunication(data) {
             log('onChildCommunication', data.msg);
@@ -197,7 +163,7 @@
             else if (msg.head == "data") {
                 document.getElementById("data").innerHTML = JSON.stringify(msg.body);
                 localStorage.setItem("data", JSON.stringify(msg.body));
-                showlogin();
+                AADHAR_INIT['callback']();
             }
             data.type = 'custom';
             postMessageEvents.push(data);
@@ -241,7 +207,8 @@
             apikey = "",
             divname = "aadhaar",
             permissions = ['vid', 'personal_data', 'address', 'photo'],
-            BTN_CLASS = "btn btn-warning") {
+            BTN_CLASS = "btn btn-warning",
+            callback = null) {
             INIT_REQ = {
                 'divname': divname,
                 'apikey': apikey,
@@ -277,6 +244,7 @@
                             'apikey': apikey,
                             'permissions': permissions,
                             'origin': window.location.host,
+                            'callback':callback,
                         }
                         if (permission_request) {
                             broadCastAll({ head: "permissions", "body": AADHAR_INIT['permissions'] });
@@ -305,8 +273,47 @@
             apikey = "{{apikey}}",
             divname = "aadhaar",
             permissions = ['vid', 'personal_data', 'address', 'photo'],
+            callback= showlogin,
         );
         // var aadharBtn = aadhaarInit("app-key","aadhaar", ["vid", "personal_data", "address", "photo"]);
+        
+        function logout(){
+            localStorage.removeItem('data');
+        }
+        window.addEventListener("load",()=>showlogin());
+        function showlogin(){
+            data = localStorage.getItem('data'); 
+            if(!data)return;
+            data = JSON.parse(data);
+            dataparse = `<h2>Logged In<h2><button class="btn btn-danger" onclick="logout()">Logout</button>`
+            try{
+                if(data["personal_data"])
+                dataparse+=`
+                    <p> ${data["personal_data"]["dob"]} </p>
+                    <p> ${data["personal_data"]["gender"]} </p>
+                    <p> ${data["personal_data"]["name"]} </p>
+                    <p> ${data["personal_data"]["phone"]} </p>`
+                if(data["address"]){
+                    dataparse+=`
+                    <p> ${data["address"]["co"]} </p>
+                    <p> ${data["address"]["country"]} </p>
+                    <p> ${data["address"]["dist"]} </p>
+                    <p> ${data["address"]["house"]} </p>
+                    <p> ${data["address"]["lm"]} </p>
+                    <p> ${data["address"]["pc"]} </p>
+                    <p> ${data["address"]["state"]} </p>
+                    <p> ${data["address"]["street"]} </p>
+                    <p> ${data["address"]["vtc"]} </p>`                
+                }
+                if(data["photo"]){
+                    dataparse+=`
+                    <img src="data:image/jpg;base64,${data["photo"]}">`
+                }
+            }catch{
+            }
+            
+            document.getElementById('datacontainer').innerHTML =dataparse
+        }
     </script>
 </body>
 

@@ -280,6 +280,7 @@
         
         function logout(){
             localStorage.removeItem('data');
+            window.location.reload();
         }
         window.addEventListener("load",()=>showlogin());
         function showlogin(){

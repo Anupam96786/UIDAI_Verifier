@@ -21,63 +21,66 @@
 </head>
 
 <body>
-	<nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #ffffff;">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="{%url 'index'%}">
-				<img src="{%static 'images/icon.png'%}" width="30" height="30" class="d-inline-block align-top" alt="">
-				Verifier Application
-			</a>
-		</div>
-	</nav>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #ffffff;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{%url 'index'%}">
+                <img src="{%static 'images/icon.png'%}" width="30" height="30" class="d-inline-block align-top" alt="">
+                Verifier Application
+            </a>
+        </div>
+    </nav>
     <br>
-    
-<style>
-.simple-login-container{
-    width:400px;
-    max-width:100%;
-    margin:50px auto;
-}
-.simple-login-container h2{
-    text-align:center;
-    font-size:20px;
-    margin-bottom: 20px;
-}
-.simple-login-container .row{
-    margin-bottom:20px;
-}
-.simple-login-container .btn-login{
-    background-color:#17a2f2;
-    color:#fff;
-    width:100%;
-}
-a{
-    color:#fff;
-}
 
-</style>
-<div class="simple-login-container">
-    <h2>Login Form</h2>
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <input type="text" class="form-control" placeholder="Email / Phone Number">
+    <style>
+        .simple-login-container {
+            width: 400px;
+            max-width: 100%;
+            margin: 50px auto;
+        }
+
+        .simple-login-container h2 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .simple-login-container .row {
+            margin-bottom: 20px;
+        }
+
+        .simple-login-container .btn-login {
+            background-color: #17a2f2;
+            color: #fff;
+            width: 100%;
+        }
+
+        a {
+            color: #fff;
+        }
+    </style>
+    <div class="simple-login-container">
+        <h2>Login Form</h2>
+        <div class="row">
+            <div class="col-md-12 form-group">
+                <input type="text" class="form-control" placeholder="Email / Phone Number">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 form-group">
+                <input type="password" placeholder="Password" class="form-control">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 form-group">
+                <input type="submit" class="btn btn-block btn-login" value="Submit">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 d-flex justify-content-center">
+                <div id="aadhaar"></div>
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <input type="password" placeholder="Password" class="form-control">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <input type="submit" class="btn btn-block btn-login" value="Submit">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 d-flex justify-content-center">
-            <div id="aadhaar"></div>
-        </div>
-    </div>
-</div>
 
 
 
@@ -88,6 +91,7 @@ a{
 
         var SSO_DOMAIN = "https://b78e-115-187-36-114.ngrok.io";
         var SSO_URL = "https://b78e-115-187-36-114.ngrok.io/sso";
+        var DEBUG = true;
         var POPUP_SPECS = "width=350,height=500";
         var newTab,
             i = 0;
@@ -96,10 +100,10 @@ a{
             openedTabs = [],
             closedTabs = [];
         function log(...args) {
-            if(DEBUG)console.log(args);
+            if (DEBUG) console.log(args);
         }
         function showPMList() {
-            if(!DEBUG) return 0;
+            if (!DEBUG) return 0;
             var list = '';
             for (var i = 0; i < postMessageEvents.length; i++) {
                 var msg;
@@ -147,16 +151,16 @@ a{
         var permission_request = false;
         function onChildCommunication(data) {
             log('onChildCommunication', data.msg);
-            msg=data.msg;
-            if(msg.head=="sendPermissions"){
-                if(AADHAR_INIT){
+            msg = data.msg;
+            if (msg.head == "sendPermissions") {
+                if (AADHAR_INIT) {
                     broadCastAll(AADHAR_INIT['permissions']);
                 }
-                else{
+                else {
                     permission_request = true;
                 }
             }
-            else if(msg.head=="data"){
+            else if (msg.head == "data") {
                 document.getElementById("data").innerHTML = JSON.stringify(msg.body);
             }
             data.type = 'custom';
@@ -226,7 +230,7 @@ a{
                         var aadhaar = document.getElementById(divname);
                         btn = document.createElement("button");
                         btn.setAttribute("id", "aadhaar-btn");
-                        btn.setAttribute("class",BTN_CLASS);
+                        btn.setAttribute("class", BTN_CLASS);
                         btn.innerHTML = "Login with Aadhaar";
                         btn.onclick = function () {
                             openNewTab();
@@ -238,8 +242,8 @@ a{
                             'permissions': permissions,
                             'origin': window.location.href,
                         }
-                        if(permission_request){
-                            broadCastAll({head:"permissions","body":AADHAR_INIT['permissions']});
+                        if (permission_request) {
+                            broadCastAll({ head: "permissions", "body": AADHAR_INIT['permissions'] });
                         }
                     }
                 },

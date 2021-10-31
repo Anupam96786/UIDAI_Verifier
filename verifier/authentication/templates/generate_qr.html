@@ -336,11 +336,12 @@
                 <h2>Send E-KYC</h2>
             </div>
             <div id="qrcode" class="d-flex justify-content-center" style="padding-bottom: 40pt;"></div>
-            <!-- <div id="formFooter">
+            <div id="formFooter">
                 {%block footer%}
-                <a class="underlineHover">Register</a>
+                <!-- <a class="underlineHover">Register</a> -->
+
                 {%endblock%}
-            </div> -->
+            </div>
         </div>
     </div>
     {%block script%}
@@ -349,11 +350,15 @@
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script type="text/javascript">
         var API_KEY = "hbc-podoih-0019kx";
-        data = {
-            "apiKey": API_KEY,
-        }
+        // data = {
+        //     "apiKey": API_KEY,
+        // }
+        var SSO_DOMAIN = "https://127.0.0.1:8000/";
+        var QR_URL = SSO_DOMAIN+"sso/scan_qr/";
+        var data = QR_URL+"?ApiKey="+API_KEY;
+        var DEBUG = true;
         var qrcode = new QRCode(document.getElementById("qrcode"), {
-            text: JSON.stringify(data),
+            text: data,
             width: 250,
             height: 250,
             colorDark: "#000000",

@@ -349,11 +349,11 @@
 
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
     <script type="text/javascript">
-        var API_KEY = "d058ce12-badd-448d-9727-81abab136e99";
+        var API_KEY = '{{apikey}}';
         // data = {
         //     "apiKey": API_KEY,
         // }
-        var SSO_DOMAIN = '{{apikey}}';
+        var SSO_DOMAIN = "http://143.110.248.104:8000/";
         var QR_URL = SSO_DOMAIN+"sso/scan_qr/";
         var data = QR_URL+"?ApiKey="+API_KEY;
         var DEBUG = true;

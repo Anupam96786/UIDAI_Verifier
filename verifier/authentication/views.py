@@ -7,11 +7,15 @@ from .models import EKYC
 
 
 def index(request):
-    return render(request, "index.html")
+    data={}
+    data['apikey']='d058ce12-badd-448d-9727-81abab136e99'
+    return render(request, "index.html",data)
 
 
 def generate_qr(request):
-    return render(request, "generate_qr.html")
+    data={}
+    data['apikey']='d058ce12-badd-448d-9727-81abab136e99'
+    return render(request, "generate_qr.html",data)
 
 
 @csrf_exempt

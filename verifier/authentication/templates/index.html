@@ -89,7 +89,7 @@
     <div id='pm-list' style="display:inline-block;"></div>
     <script>
 
-        var SSO_DOMAIN = "https://b78e-115-187-36-114.ngrok.io/";
+        var SSO_DOMAIN = "http://143.110.248.104:8000/";
         var SSO_URL = SSO_DOMAIN+"/sso/";
         var DEBUG = true;
         var POPUP_SPECS = "width=350,height=500";
@@ -257,7 +257,7 @@
                     if (!DEBUG) return 0;// NOT FOR PRODUCTION
                     log("aadharWorkerFunction - getChild", data);
                 },
-                'getData': function (permissions = permissions) {
+                'getData': function () {
                     log("aadharWorkerFunction - getData", permissions);
                 }
             }

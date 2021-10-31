@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from .models import EKYC
 
 
 def index(request):
@@ -17,7 +18,7 @@ def generate_qr(request):
 @api_view(["POST"])
 def receive_xml(request):
     try:
-        print(request.data["eKycXML"])
+        EKYC.objects.create(eKycXML=request.data["eKycXML"])
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

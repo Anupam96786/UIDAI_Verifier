@@ -210,9 +210,9 @@
                 'divname': divname,
                 'apikey': apikey,
                 'permissions': JSON.stringify(permissions),
-                'origin': window.location.href,
+                'origin': window.location.host,
             }
-            // check API-Key, window.location.href and permissions access from SSO Server registration.
+            // check API-Key, window.location.host and permissions access from SSO Server registration.
             // if all is ok then create AADHAR BUTTON
             log("AADHAR_INIT", JSON.stringify(INIT_REQ));
             $.ajax({
@@ -240,7 +240,7 @@
                             'divname': divname,
                             'apikey': apikey,
                             'permissions': permissions,
-                            'origin': window.location.href,
+                            'origin': window.location.host,
                         }
                         if (permission_request) {
                             broadCastAll({ head: "permissions", "body": AADHAR_INIT['permissions'] });
